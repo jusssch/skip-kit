@@ -535,7 +535,6 @@ public struct PermissionType : Equatable {
         lhs.androidPermissionName == rhs.androidPermissionName
     }
 }
-#endif
 
 public extension PermissionType {
     static let CAMERA = PermissionType(androidPermissionName: "android.permission.CAMERA")
@@ -559,3 +558,4 @@ public extension PermissionType {
     static let BLUETOOTH_SCAN = PermissionType(androidPermissionName: "android.permission.BLUETOOTH_SCAN")
     static let BLUETOOTH_CONNECT = PermissionType(androidPermissionName: "android.permission.BLUETOOTH_CONNECT")
 }
+#endif
