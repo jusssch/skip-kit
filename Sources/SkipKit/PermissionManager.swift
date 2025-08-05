@@ -148,11 +148,11 @@ public class PermissionManager {
         let bluetoothScanPermission =  await requestPermission(.BLUETOOTH_SCAN)
         let bluetoothConnectPermission =  await requestPermission(.BLUETOOTH_CONNECT)
         
-        if let bluetoothScanAuthorized = bluetoothScanPermission.isAuthorized, let bluetoothConnectAuthorized = bluetoothScanPermission.isAuthorized, bluetoothScanAuthorized && bluetoothConnectAuthorized {
+        if let bluetoothScanAuthorized = bluetoothScanPermission.isAuthorized, let bluetoothConnectAuthorized = bluetoothConnectPermission.isAuthorized, bluetoothScanAuthorized && bluetoothConnectAuthorized {
             return .authorized
         }
         
-        .denied
+        return PermissionAuthorization.denied
     }
 
     /// Queries camera access
