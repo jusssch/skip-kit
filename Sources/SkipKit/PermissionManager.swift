@@ -68,6 +68,7 @@ public class PermissionManager {
     /// - Returns: true if the permission was granted, false if denied or there was an error making the request
     public static func requestPermission(_ permission: PermissionType, showRationale: (() async -> Bool)?) async -> PermissionAuthorization {
         #if !SKIP
+        print("Coming from PermissionManager: Non Android device recognized")
         switch permission {
         case .POST_NOTIFICATIONS: return await (try? requestPostNotificationPermission()) ?? .unknown
         //case .READ_CONTACTS: return await (try? requestContactsPermission(readWrite: false)) ?? .unknown
@@ -83,6 +84,7 @@ public class PermissionManager {
         default: return .unknown
         }
         #else
+        print("Coming from PermissionManager: ANDROID")
         // e.g.: android.permission.ACCESS_FINE_LOCATION
         // Android does not have limited options, so we always return `authorized` or `denied`
         if try await UIApplication.shared.requestPermission(permission.androidPermissionName, showRationale: showRationale) == true {
@@ -138,6 +140,17 @@ public class PermissionManager {
         if badge { opts.insert(.badge) }
         return try await UNUserNotificationCenter.current().requestAuthorization(options: opts) ? .authorized : .denied
         #endif
+    }
+
+    public static func requestBluetoothPermission() async -> PermissionAuthorization {
+        let bluetoothScanPermission =  await requestPermission(.BLUETOOTH_SCAN)
+        let bluetoothConnectPermission =  await requestPermission(.BLUETOOTH_CONNECT)
+        
+        if let bluetoothScanAuthorized = bluetoothScanPermission.isAuthorized, let bluetoothConnectAuthorized = bluetoothScanPermission.isAuthorized, bluetoothScanAuthorized && bluetoothConnectAuthorized {
+            return .authorized
+        }
+        
+        .denied
     }
 
     /// Queries camera access
@@ -520,8 +533,8 @@ public struct PermissionType : Equatable {
         lhs.androidPermissionName == rhs.androidPermissionName
     }
 }
+#endif
 
-/// https://developer.android.com/reference/android/Manifest.permission
 public extension PermissionType {
     static let CAMERA = PermissionType(androidPermissionName: "android.permission.CAMERA")
     static let RECORD_AUDIO = PermissionType(androidPermissionName: "android.permission.RECORD_AUDIO")
@@ -540,6 +553,7 @@ public extension PermissionType {
     static let ACCESS_FINE_LOCATION = PermissionType(androidPermissionName: "android.permission.ACCESS_FINE_LOCATION")
     static let ACCESS_COARSE_LOCATION = PermissionType(androidPermissionName: "android.permission.ACCESS_COARSE_LOCATION")
     static let ACCESS_BACKGROUND_LOCATION = PermissionType(androidPermissionName: "android.permission.ACCESS_BACKGROUND_LOCATION")
-}
 
-#endif
+    static let BLUETOOTH_SCAN = PermissionType(androidPermissionName: "android.permission.BLUETOOTH_SCAN")
+    static let BLUETOOTH_CONNECT = PermissionType(androidPermissionName: "android.permission.BLUETOOTH_CONNECT")
+}
